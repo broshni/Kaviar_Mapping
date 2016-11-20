@@ -3,6 +3,9 @@
  */
 import java.io.*;
 
+//Reads the .vcf file for Kaviar and parse it and obtain the table
+//in csv formate which can be used for data frames
+
 public class Kaviardataframe {
 
         public static void main(String[] args) {
