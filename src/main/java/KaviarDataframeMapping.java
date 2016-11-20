@@ -15,28 +15,28 @@ public class KaviarDataframeMapping {
         String localDir = "/Users/roshni/Desktop/Dataframes/dataframes.rcsb.org";
 
         // assumes the human genetic data is available as a parquet file
-        // also needs the uniprot-PDB mapping parquet file
+        // also needs the uniprot-PDB mapping parquet/ORC file. Also Kaviar as ORC File.
 
         int cores = Runtime.getRuntime().availableProcessors();
 
         System.out.println("available cores: " + cores);
-
+       
+        //Create a spark session
         SparkSession spark = SparkSession
                 .builder()
                 .appName("Java Spark SQL basic example")
                 .master("local[" + cores + "]")
                 .config("spark.some.config.option", "some-value")
                 .getOrCreate();
+
         //read the kavier table
-
-
         Dataset<Row> Kavier1= spark.read().format("ORC")
                 .load("/Users/roshni/GIT/DataframesKavierMapping/KaviarDataframe");
         Kavier1.createOrReplaceTempView("K1");
 
 
-
-        Dataset<Row> KaviarChr11 = spark.sql("select * from K1 where chromosomeName = 'chrY'");
+        //select a particular chromosome: chr11 in this case
+        Dataset<Row> KaviarChr11 = spark.sql("select * from K1 where chromosomeName = 'chr11’”);
         //KaviarChr11.withColumnRenamed("position","positionK");
         KaviarChr11.printSchema();
         //KaviarChr11= KaviarChr11.repartition(10000);
@@ -46,7 +46,7 @@ public class KaviarDataframeMapping {
 
 
         //load the mapping from the human genome (assembly 38) to UniProt and look at a SNP.
-      Dataset<Row> chr11 = spark.read().parquet(localDir + "/parquet/humangenome/20161105/hg38/chrY");
+      Dataset<Row> chr11 = spark.read().parquet(localDir + "/parquet/humangenome/20161105/hg38/chr11”);
         chr11= chr11.filter(col("uniProtPos").gt(0));
         //chr11= chr11.repartition(10000);
         chr11.createOrReplaceTempView("chr11");
