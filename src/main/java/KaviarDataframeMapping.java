@@ -45,8 +45,7 @@ public class KaviarDataframeMapping {
 
 
 
-        //load the mapping from the human genome (assembly 38) to UniProt and look at a SNP.
-      Dataset<Row> chr11 = spark.read().parquet(localDir + "/parquet/humangenome/20161105/hg38/chr11”);
+        //load the mapping from the human genome (assembly 38) to UniProt       Dataset<Row> chr11 = spark.read().parquet(localDir + "/parquet/humangenome/20161105/hg38/chr11”);
         chr11= chr11.filter(col("uniProtPos").gt(0));
         //chr11= chr11.repartition(10000);
         chr11.createOrReplaceTempView("chr11");
@@ -80,7 +79,16 @@ public class KaviarDataframeMapping {
                 "where KtoG.uniProtId= uniprotPDB.uniprotId and KtoG.UniProtPos= uniprotPDB.uniProtPos");
         //chrKuni = chrKuni.repartition(10000);
 
-        System.out.println("Ktochr11toUni : " + chrKuni.count());
+	//show the number of unique pdb id Kaviar is mapping
+	Dataset<Row> p = chrKuni.agg(approxCountDistinct("pdbId"));
+        p.show();
+
+	//number of kaviar positions which get mapped to the PDB
+	Dataset<Row> pos = spark.sql("select distinct positionk from chrKuni");
+
+        System.out.println("Ktochr11toUni : " + pos.count());
+
+        //System.out.println("Ktochr11toUni : " + chrKuni.count());
         //System.out.println(chrKuni.distinct());
         //chrKuni.groupBy("uniProtId").count().show();
 
